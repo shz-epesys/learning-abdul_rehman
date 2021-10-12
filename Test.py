@@ -1,3 +1,5 @@
+import random
+
 class Question:
     def __init__(self, question, option, answer):
         self.question = question
