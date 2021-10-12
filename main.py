@@ -11,10 +11,9 @@ from student import Student
 # from data import questions
 
 
-
-
 if __name__ == '__main__':
     test1 = Test()
+    print("welcome to lms")
     test1.populate_test()
     # print(Test1.question_list)
     # test1 = Test()
