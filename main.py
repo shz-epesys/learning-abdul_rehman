@@ -8,23 +8,23 @@
 # Provide that list to a function of Test class to give a score to a Student.
 import random
 from student import Student
+import Test
 # from data import questions
 
 
-if __name__ == '__main__':
-    test1 = Test()
-    print("welcome to lms")
-    test1.populate_test()
-    # print(Test1.question_list)
-    # test1 = Test()
-    while 1:
-        student = Student(input("Enter your Name:"))
-        if student.name is None:
-            del student
-            continue
-        if not test1.is_student_exist(student):
-            test1.attempt_quiz(student, )
-        else:
-            print(
-                f"you alreay attempted the test.")
-            del student
+# if __name__ == '__main__':
+test1 = Test()
+test1.populate_test()
+# print(Test1.question_list)
+# test1 = Test()
+while 1:
+    student = Student(input("Enter your Name:"))
+    if student.name is None:
+        del student
+        continue
+    if not test1.is_student_exist(student):
+        test1.attempt_quiz(student, )
+    else:
+        print(
+            f"you alreay attempted the test.")
+        del student
