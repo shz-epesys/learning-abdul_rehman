@@ -1,12 +1,3 @@
-# TASK:2)
-# Our Learning management system needs functionality you implemented in task 1, so we can record each student's progress from our learning platform.
-# HOW TO SOLVE)
-# Create a Test Class which contains an empty list.
-# Take inputs from the teacher and populate the list of dictionaries in Test Class.
-# Generate a Test for a student with suffled questions and shuffled choices.
-# Take answers from a student and store them in each dictionary of a list.
-# Provide that list to a function of Test class to give a score to a Student.
-
 from student import *
 from Test import *
 
