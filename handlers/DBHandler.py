@@ -1,5 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy
-# from flask import jsonify
 
 db = SQLAlchemy()
 
@@ -13,6 +12,7 @@ def insert(table='', feilds=[], values=[], where=''):
     db.session.execute(query)
     db.session.commit()
 
+
 def delete(table='', where=''):
     query = f'delete from {table} '
     if where:
@@ -20,13 +20,15 @@ def delete(table='', where=''):
     db.session.execute(query)
     db.session.commit()
 
+
 def update(table='', feilds=[], values=[], where=''):
-    values = list(map(lambda v,f: f'{f}="{v}"', values,feilds))
+    values = list(map(lambda v, f: f'{f}="{v}"', values, feilds))
     query = f'update {table} set {",".join(values)}'
     if where:
         query += f'WHERE {where}'
     db.session.execute(query)
-    db.session.commit()    
+    db.session.commit()
+
 
 def select(table='', feilds=[], where=''):
     if not feilds:
@@ -36,5 +38,5 @@ def select(table='', feilds=[], where=''):
     query = f'SELECT {feilds} FROM {table}'
     if where:
         query += f' WHERE {where};'
-    result =db.session.execute(query)
+    result = db.session.execute(query)
     return result
