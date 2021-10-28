@@ -11,8 +11,16 @@ import uuid  # for public id
 import jwt
 from datetime import datetime, timedelta
 from functools import wraps
+from werkzeug.utils import secure_filename
+import os
+import urllib.request
 
 app = Flask(__name__)
+upload_path = 'static/files'
+app.config['UPLOAD_FOLDER'] = upload_path
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://mars:Mars12345@localhost/lms'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = '77eb7d82c7a65a416b1fb5403c6c33c2'
@@ -52,6 +60,86 @@ def token_required(f):
     return decorated
 
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/upload-file', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'message': 'No file part in the request'}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({'message': 'No file selected for uploading'}), 400
+    if file and allowed_file(file.filename):
+        file.filename = str(uuid.uuid4()) + "." + \
+            file.filename.rsplit('.', 1)[1].lower()
+        filename = secure_filename(file.filename)
+        file.save(
+            os.path.join(
+                app.config[
+                    'UPLOAD_FOLDER'
+                ],
+                filename
+            )
+        )
+        return jsonify(
+            {
+                'message': 'File successfully uploaded',
+
+                'file path': os.path.join(
+                    "http://localhost:5000",
+                    upload_path,
+                    file.filename
+                )
+            }
+        ), 201
+    else:
+        return jsonify({'message': 'Allowed file types are txt, pdf, png, jpg, jpeg, gif'}), 400
+
+
+@app.route('/upload-files', methods=['POST'])
+def upload_files():
+    if 'files[]' not in request.files:
+        return jsonify({'message': 'No file part in the request'}), 400
+
+    files = request.files.getlist('files[]')
+    rejected_files = []
+    uploaded_files = []
+    for file in files:
+        if file and allowed_file(file.filename):
+            filename = secure_filename(
+                str(uuid.uuid4())+"." +
+                file.filename.rsplit('.', 1)[1].
+                lower()
+            )
+            file.save(
+                os.path.join(
+                    app.config[
+                        'UPLOAD_FOLDER'
+                    ],
+                    filename
+                )
+            )
+            uploaded_files .append(
+                os.path.join(
+                    "http://localhost:5000",
+                    upload_path,
+                    filename
+                )
+            )
+        else:
+            rejected_files .append(file.filename)
+    return jsonify(
+        {
+            'uploaded_files': uploaded_files,
+            'rejected_files ': rejected_files
+        }
+    ), 500
+
+
 # login
 @app.route('/login', methods=['POST'])
 def login():
@@ -62,7 +150,7 @@ def login():
             feilds=[],
             where=f'(username="{form.username.data}" or email="{form.username.data}") and password="{form.password.data}"'
         )
-        public_id = [user_data1['public_id'] for user_data1 in user_data]
+        public_id = [u['public_id'] for u in user_data]
         if public_id:
             token = jwt.encode(
                 {
